@@ -43,10 +43,15 @@ response = requests.post(url, headers=headers, json=status_filter)
 if response.status_code == 200:
     data = response.json()
     results = data.get("results", [])
-    print(results)
 else:
     print("Failed to return data from Notion API: ", response.text)
 
-print("Status Code:", response.status_code)
-print("Response Text:", response.text)
+# Gets the properties of each coursework page
+for page in results:
+    properties = page["properties"]
+    name = properties["Name"]["title"][0]["text"]["content"]
+    due_date = properties["due date"]["date"]["start"] if properties["due date"]["date"] else "No due date"
+    course = properties["course"]["multi_select"][0]["name"] if properties["course"]["multi_select"] else "No course"
+    type = properties["type"]["multi_select"][0]["name"] if properties["type"]["multi_select"] else "No type"
 
+print(f"Name: {name}, Due Date: {due_date}, Course: {course}, Type: {type}")
