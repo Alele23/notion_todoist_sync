@@ -46,12 +46,22 @@ if response.status_code == 200:
 else:
     print("Failed to return data from Notion API: ", response.text)
 
-# Gets the properties of each coursework page
+assignments = []
+# Gets the properties of each assignment page
 for page in results:
     properties = page["properties"]
-    name = properties["Name"]["title"][0]["text"]["content"]
+    name = properties["Name"]["title"][0]["text"]["content"] if properties["Name"]["title"] else "Untitled"
     due_date = properties["due date"]["date"]["start"] if properties["due date"]["date"] else "No due date"
     course = properties["course"]["multi_select"][0]["name"] if properties["course"]["multi_select"] else "No course"
     type = properties["type"]["multi_select"][0]["name"] if properties["type"]["multi_select"] else "No type"
 
-print(f"Name: {name}, Due Date: {due_date}, Course: {course}, Type: {type}")
+    assignment = {
+        "name": name,
+        "due_date": due_date,
+        "course": course,
+        "type": type
+    }
+    assignments.append(assignment)
+
+def get_assignments():
+    return assignments
