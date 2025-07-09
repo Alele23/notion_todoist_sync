@@ -1,8 +1,10 @@
 import os
 import requests
+from notion_client import Client
 from dotenv import load_dotenv
 
-from notion_client import Client
+def get_assignments():
+    return assignments
 
 load_dotenv()
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
@@ -38,7 +40,7 @@ status_filter = {
     }
 }
 
-# Fetching data from Notion database
+# Get data from Notion database
 response = requests.post(url, headers=headers, json=status_filter)
 if response.status_code == 200:
     data = response.json()
@@ -47,7 +49,7 @@ else:
     print("Failed to return data from Notion API: ", response.text)
 
 assignments = []
-# Gets the properties of each assignment page
+# Get the properties of each assignment page
 for page in results:
     properties = page["properties"]
     name = properties["Name"]["title"][0]["text"]["content"] if properties["Name"]["title"] else "Untitled"
@@ -62,6 +64,3 @@ for page in results:
         "type": type
     }
     assignments.append(assignment)
-
-def get_assignments():
-    return assignments
