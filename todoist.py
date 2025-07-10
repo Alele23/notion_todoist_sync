@@ -1,5 +1,4 @@
 import os
-import requests
 from todoist_api_python.api import TodoistAPI
 from dotenv import load_dotenv
 
@@ -16,6 +15,7 @@ def get_assignments():
 load_dotenv()
 TODOIST_API_KEY = os.getenv("TODOIST_API_KEY")
 TODOIST_PROJECT_ID = os.getenv("TODOIST_PROJECT_ID")
+TODOIST_SECTION_ID = os.getenv("TODOIST_SECTION_ID")
 
 # Initialize Todoist client
 todoist = TodoistAPI(TODOIST_API_KEY)

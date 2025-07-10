@@ -27,13 +27,14 @@ def get_todoist_names():
 
 # Creates a task in Todoist
 def create_todoist_task(assignment):
-    from todoist import TodoistAPI, TODOIST_API_KEY, TODOIST_PROJECT_ID
+    from todoist import TodoistAPI, TODOIST_API_KEY, TODOIST_PROJECT_ID, TODOIST_SECTION_ID
     todoist = TodoistAPI(TODOIST_API_KEY)
     due_date_obj = datetime.strptime(assignment['due_date'], '%Y-%m-%d').date()
     course = []
     course.append(assignment['course'])
     todoist.add_task(content=assignment['name'],
                      project_id=TODOIST_PROJECT_ID,
+                     section_id=TODOIST_SECTION_ID,
                      due_date=due_date_obj,
                      labels=course,
                      description=assignment['type'])
