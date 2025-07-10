@@ -3,6 +3,9 @@ import requests
 from notion_client import Client
 from dotenv import load_dotenv
 
+def get_assignment_names():
+    return [assignment["name"] for assignment in assignments]
+
 def get_assignments():
     return assignments
 

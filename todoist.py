@@ -5,7 +5,10 @@ from dotenv import load_dotenv
 
 def print_assignments():
     for assignment in assignments:
-        print(f"Name: {assignment['name']}, Due Date: {assignment['due_date']}, Class: {assignment['class']}, Type: {assignment['type']}, Completed: {assignment['completed']}")
+        print(f"Name: {assignment['name']}, Due Date: {assignment['due_date']}, Course: {assignment['course']}, Type: {assignment['type']}, Completed: {assignment['completed']}")
+
+def get_assignment_names():
+    return [assignment['name'] for assignment in assignments]
 
 def get_assignments():
     return assignments
@@ -19,14 +22,14 @@ todoist = TodoistAPI(TODOIST_API_KEY)
 
 assignments = []
 
-# Get tasks from Todoist project
+# Get tasks from Todoist project and store them in assignments list
 tasks = todoist.get_tasks(project_id=TODOIST_PROJECT_ID)
 for task in tasks:
     for i in range(len(task)):
         assignment = {
             "name": task[i].content,
             "due_date": task[i].due.date if task[i].due else "No due date",
-            "class": task[i].labels,
+            "course": task[i].labels,
             "type": task[i].description,
             "completed": task[i].is_completed
         }
