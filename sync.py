@@ -12,13 +12,13 @@ def get_notion_assignments():
 
 # Gets a list of assignment names from Notion
 def get_notion_names():
-    from notion import get_assignment_names as notion_get_assignment_names
-    return notion_get_assignment_names()
+    from notion import get_assignment_names
+    return get_assignment_names()
 
 # Gets a list of assignments from Todoist
 def get_todoist_assignments():
-    from todoist import get_assignments as todoist_get_assignments
-    return todoist_get_assignments()
+    from todoist import get_assignments
+    return get_assignments()
 
 # Gets a list of assignment names from Todoist
 def get_todoist_names():
@@ -50,4 +50,57 @@ def notion_to_todoist():
             print(f"Adding to Todoist: {assignment}")
             create_todoist_task(assignment)
 
-notion_to_todoist()
+
+# Creates an assignment in Notion
+def notion_create_assignment(assignment):
+    from notion import NOTION_DATABASE_ID, requests, headers
+    due_date = assignment['due_date'].isoformat()
+    create_url = "https://api.notion.com/v1/pages"
+
+    assignment_properties = {
+        "parent": { "database_id": NOTION_DATABASE_ID },
+        "properties": {
+            "Name": {
+                "title": [
+                    {
+                        "text": {
+                            "content": assignment['name']
+                        }
+                    }
+                ]
+            },
+            "due date": {
+                "date": {
+                    "start": due_date
+                }
+            },
+            "course": {
+                "multi_select": [
+                    { "name": assignment['course'][0] }
+                ]
+            },
+            "type": {
+                "multi_select": [
+                    { "name": assignment['type'] }
+                ]
+            }
+        }
+    }
+    
+    # Create a new page in Notion
+    new_assignment = requests.post(create_url, headers=headers, json=assignment_properties)
+    if new_assignment.status_code == 200:
+        print(f"Assignment created in Notion: {assignment['name']}")
+    else:
+        print("Failed to create assignment in Notion: ", new_assignment.text)
+
+def todoist_to_notion():
+    todoist_assignments = get_todoist_assignments()
+    notion_assignment_names = get_notion_names()
+
+    for assignment in todoist_assignments:
+        if assignment['name'] not in notion_assignment_names:
+            print(f"Adding to Notion: {assignment}")
+            notion_create_assignment(assignment)
+
+todoist_to_notion()
