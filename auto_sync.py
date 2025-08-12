@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from sync import notion_to_todoist, todoist_to_notion
 
 def sync():
