@@ -59,11 +59,17 @@ for page in results:
     due_date = properties["due date"]["date"]["start"] if properties["due date"]["date"] else "No due date"
     course = properties["course"]["multi_select"][0]["name"] if properties["course"]["multi_select"] else "No course"
     type = properties["type"]["multi_select"][0]["name"] if properties["type"]["multi_select"] else "No type"
+    notion_id = page["id"]
+    progress = properties["Progress"]["status"]["name"] if properties["Progress"]["status"] else "No status"
+    todoist_task_id = ""
 
     assignment = {
         "name": name,
         "due_date": due_date,
         "course": course,
-        "type": type
+        "type": type,
+        "notion_id": notion_id,
+        "progress": progress,
+        "todoist_task_id": todoist_task_id
     }
     assignments.append(assignment)
