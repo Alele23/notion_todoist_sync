@@ -12,6 +12,13 @@ def get_assignment_names():
 def get_assignments():
     return assignments
 
+def mark_task_completed(task_id):
+    try:
+        todoist.close_task(task_id)
+        print(f"Task {task_id} marked as completed.")
+    except Exception as e:
+        print(f"Error marking task {task_id} as completed: {e}")
+
 load_dotenv()
 TODOIST_API_KEY = os.getenv("TODOIST_API_KEY")
 TODOIST_PROJECT_ID = os.getenv("TODOIST_PROJECT_ID")
@@ -31,6 +38,10 @@ for task in tasks:
             "due_date": task[i].due.date if task[i].due else "No due date",
             "course": task[i].labels,
             "type": task[i].description,
-            "completed": task[i].is_completed
+            "completed": task[i].is_completed,
+            "todoist_task_id": task[i].id,
+            "notion_id": ""
         }
         assignments.append(assignment)
+        print(assignment["completed"])
+

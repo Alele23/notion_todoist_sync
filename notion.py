@@ -23,28 +23,8 @@ headers = {
     "Content-Type": "application/json"
 }
 
-# filter to retrieve assignments whose status is either "Not Started" or "In Progress"
-status_filter = {
-    "filter": {
-        "or": [
-            {
-                "property": "Progress",
-                "status": {
-                    "equals": "Not started"
-                }
-            },
-            {
-                "property": "Progress",
-                "status": {
-                    "equals": "In progress"
-                }
-            }
-        ]
-    }
-}
-
 # Get data from Notion database
-response = requests.post(url, headers=headers, json=status_filter)
+response = requests.post(url, headers=headers, json={})
 if response.status_code == 200:
     data = response.json()
     results = data.get("results", [])
@@ -73,3 +53,16 @@ for page in results:
         "todoist_task_id": todoist_task_id
     }
     assignments.append(assignment)
+
+def update_notion_page_properties(page_id, properties):
+    url = f"https://api.notion.com/v1/pages/{page_id}"
+    headers = {
+        "Authorization": f"Bearer {NOTION_API_KEY}",
+        "Notion-Version": "2022-06-28",
+        "Content-Type": "application/json"
+    }
+    response = requests.patch(url, headers=headers, json={"properties": properties})
+    if response.status_code == 200:
+        print("Notion page updated successfully.")
+    else:
+        print("Failed to update Notion page: ", response.text)

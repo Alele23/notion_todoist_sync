@@ -42,14 +42,18 @@ def create_todoist_task(assignment):
 
 # Syncs assignments from Notion to Todoist
 def notion_to_todoist():
+    from todoist import mark_task_completed
     notion_assignments = get_notion_assignments()
-    todoist_assignment_names = get_todoist_names()
 
     for assignment in notion_assignments:
-        if assignment['name'] not in todoist_assignment_names:
-            print(f"Adding to Todoist: {assignment}")
-            create_todoist_task(assignment)
+        if assignment["todoist_task_id"]:
+            if assignment['progress'] == "Completed":
+                mark_task_completed(assignment['todoist_task_id'])
 
+        else:
+            if assignment['name'] not in get_todoist_names():
+                print(f"Adding to Todoist: {assignment}")
+                create_todoist_task(assignment)
 
 # Creates an assignment in Notion
 def notion_create_assignment(assignment):
