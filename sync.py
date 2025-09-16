@@ -3,6 +3,8 @@ import requests
 from dotenv import load_dotenv
 from datetime import datetime
 
+from notion import update_notion_page_properties
+
 load_dotenv()
 
 # Gets a list of assignments from Notion
@@ -30,8 +32,7 @@ def create_todoist_task(assignment):
     from todoist import TodoistAPI, TODOIST_API_KEY, TODOIST_PROJECT_ID, TODOIST_SECTION_ID
     todoist = TodoistAPI(TODOIST_API_KEY)
     due_date_obj = datetime.strptime(assignment['due_date'], '%Y-%m-%d').date()
-    course = []
-    course.append(assignment['course'])
+    course = [assignment["course"]]
     todoist.add_task(content=assignment['name'],
                      project_id=TODOIST_PROJECT_ID,
                      section_id=TODOIST_SECTION_ID,
@@ -100,11 +101,16 @@ def notion_create_assignment(assignment):
 
 def todoist_to_notion():
     todoist_assignments = get_todoist_assignments()
-    notion_assignment_names = get_notion_names()
 
     for assignment in todoist_assignments:
-        if assignment['name'] not in notion_assignment_names:
-            print(f"Adding to Notion: {assignment}")
-            notion_create_assignment(assignment)
+        if assignment["notion_id"]:  # already linked
+            if assignment["completed"]:
+                update_notion_page_properties(
+                    assignment["notion_id"],
+                    {"Progress": {"status": {"name": "Completed"}}}
+                )
+        else:
+            if not assignment["completed"]:  # only sync active tasks
+                notion_create_assignment(assignment)
 
 todoist_to_notion()

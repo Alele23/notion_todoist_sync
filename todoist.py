@@ -30,18 +30,17 @@ todoist = TodoistAPI(TODOIST_API_KEY)
 assignments = []
 
 # Get tasks from Todoist project and store them in assignments list
-tasks = todoist.get_tasks(project_id=TODOIST_PROJECT_ID)
-for task in tasks:
-    for i in range(len(task)):
+tasks = (todoist.get_tasks(project_id=TODOIST_PROJECT_ID))
+for task_list in tasks:
+    for task in task_list:
         assignment = {
-            "name": task[i].content,
-            "due_date": task[i].due.date if task[i].due else "No due date",
-            "course": task[i].labels,
-            "type": task[i].description,
-            "completed": task[i].is_completed,
-            "todoist_task_id": task[i].id,
+            "name": task.content,
+            "due_date": task.due.date if task.due else "No due date",
+            "course": task.labels,
+            "type": task.description,
+            "completed": task.is_completed,
+            "todoist_task_id": task.id,
             "notion_id": ""
         }
         assignments.append(assignment)
-        print(assignment["completed"])
 

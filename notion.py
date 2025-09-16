@@ -41,7 +41,8 @@ for page in results:
     type = properties["type"]["multi_select"][0]["name"] if properties["type"]["multi_select"] else "No type"
     notion_id = page["id"]
     progress = properties["Progress"]["status"]["name"] if properties["Progress"]["status"] else "No status"
-    todoist_task_id = ""
+    todoist_task_id = properties["Todoist Task ID"]["rich_text"][0]["text"]["content"] \
+        if properties.get("Todoist Task ID") and properties["Todoist Task ID"]["rich_text"] else ""
 
     assignment = {
         "name": name,
@@ -53,6 +54,9 @@ for page in results:
         "todoist_task_id": todoist_task_id
     }
     assignments.append(assignment)
+    for a in assignments:
+        print(a["name"], a["todoist_task_id"])
+
 
 def update_notion_page_properties(page_id, properties):
     url = f"https://api.notion.com/v1/pages/{page_id}"
