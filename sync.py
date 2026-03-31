@@ -60,10 +60,10 @@ def notion_to_todoist():
 
     for assignment in all_assignments:
         if assignment["todoist_task_id"]:
-            if assignment['progress'] == "Completed":
+            if assignment['progress'] == "Complete":
                 mark_task_completed(assignment['todoist_task_id'])
         else:
-            if assignment['progress'] != "Completed":
+            if assignment['progress'] != "Complete":
                 if assignment['name'] not in get_todoist_names():
                     print(f"Adding to Todoist: {assignment}")
                     create_todoist_task(assignment)
@@ -126,10 +126,10 @@ def todoist_to_notion():
     for assignment in get_all_assignments():
         if (assignment["todoist_task_id"]
                 and assignment["todoist_task_id"] not in active_todoist_ids
-                and assignment['progress'] != "Completed"):
+                and assignment['progress'] != "Complete"):
             update_notion_page_properties(
                 assignment["notion_id"],
-                {"Progress": {"status": {"name": "Completed"}}}
+                {"Progress": {"status": {"name": "Complete"}}}
             )
             print(f"Marked as completed in Notion: {assignment['name']}")
 
