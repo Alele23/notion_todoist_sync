@@ -98,12 +98,12 @@ def notion_create_assignment(assignment):
             "course": {
                 "multi_select": [
                     { "name": assignment['course'][0] }
-                ]
+                ] if assignment['course'] else []
             },
             "type": {
                 "multi_select": [
                     { "name": assignment['type'] }
-                ]
+                ] if assignment['type'] else []
             }
         }
     }
