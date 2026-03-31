@@ -33,6 +33,12 @@ assignments = []
 tasks = (todoist.get_tasks(project_id=TODOIST_PROJECT_ID))
 for task_list in tasks:
     for task in task_list:
+
+        # Try to parse NotionID from the description
+        notion_id = ""
+        if task.description and "NotionID:" in task.description:
+            notion_id = task.description.split("NotionID:")[-1].strip()
+
         assignment = {
             "name": task.content,
             "due_date": task.due.date if task.due else "No due date",
@@ -40,7 +46,7 @@ for task_list in tasks:
             "type": task.description,
             "completed": task.is_completed,
             "todoist_task_id": task.id,
-            "notion_id": ""
+            "notion_id": notion_id
         }
         assignments.append(assignment)
 
