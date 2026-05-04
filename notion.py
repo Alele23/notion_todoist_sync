@@ -48,40 +48,36 @@ status_filter = {
     }
 }
 
-# Get data from Notion database
-response = requests.post(url, headers=headers, json=status_filter)
-if response.status_code == 200:
-    data = response.json()
-    results = data.get("results", [])
-else:
-    print("Failed to return data from Notion API: ", response.text)
+def fetch_all_pages(filter_body, label=""):
+    results = []
+    body = dict(filter_body)
+    while True:
+        response = requests.post(url, headers=headers, json=body)
+        if response.status_code != 200:
+            print(f"Failed to return {label} data from Notion API: ", response.text)
+            break
+        data = response.json()
+        results.extend(data.get("results", []))
+        if not data.get("has_more"):
+            break
+        body["start_cursor"] = data["next_cursor"]
+    return results
 
-assignments = []
-# Get the properties of each assignment page
-for page in results:
+def parse_page(page):
     properties = page["properties"]
-    name = properties["Name"]["title"][0]["text"]["content"] if properties["Name"]["title"] else "Untitled"
-    due_date = properties["due date"]["date"]["start"] if properties["due date"]["date"] else "No due date"
-    course = properties["course"]["multi_select"][0]["name"] if properties["course"]["multi_select"] else "No course"
-    type = properties["type"]["multi_select"][0]["name"] if properties["type"]["multi_select"] else "No type"
-    notion_id = page["id"]
-    progress = properties["Progress"]["status"]["name"] if properties["Progress"]["status"] else "No status"
-
-    todoist_task_id = properties["Todoist Task ID"]["rich_text"][0]["text"]["content"] \
-        if properties.get("Todoist Task ID") and properties["Todoist Task ID"]["rich_text"] else ""
-
-    assignment = {
-        "name": name,
-        "due_date": due_date,
-        "course": course,
-        "type": type,
-        "notion_id": notion_id,
-        "progress": progress,
-        "todoist_task_id": todoist_task_id
+    return {
+        "name": properties["Name"]["title"][0]["text"]["content"] if properties["Name"]["title"] else "Untitled",
+        "due_date": properties["due date"]["date"]["start"] if properties["due date"]["date"] else "No due date",
+        "course": properties["course"]["multi_select"][0]["name"] if properties["course"]["multi_select"] else "No course",
+        "type": properties["type"]["multi_select"][0]["name"] if properties["type"]["multi_select"] else "No type",
+        "notion_id": page["id"],
+        "progress": properties["Progress"]["status"]["name"] if properties["Progress"]["status"] else "No status",
+        "todoist_task_id": properties["Todoist Task ID"]["rich_text"][0]["text"]["content"]
+            if properties.get("Todoist Task ID") and properties["Todoist Task ID"]["rich_text"] else ""
     }
-    assignments.append(assignment)
 
-# Get completed assignments from Notion
+assignments = [parse_page(page) for page in fetch_all_pages(status_filter, "active")]
+
 completed_filter = {
     "filter": {
         "property": "Progress",
@@ -91,32 +87,7 @@ completed_filter = {
     }
 }
 
-completed_response = requests.post(url, headers=headers, json=completed_filter)
-completed_assignments = []
-if completed_response.status_code == 200:
-    completed_data = completed_response.json()
-    completed_results = completed_data.get("results", [])
-    for page in completed_results:
-        properties = page["properties"]
-        name = properties["Name"]["title"][0]["text"]["content"] if properties["Name"]["title"] else "Untitled"
-        due_date = properties["due date"]["date"]["start"] if properties["due date"]["date"] else "No due date"
-        course = properties["course"]["multi_select"][0]["name"] if properties["course"]["multi_select"] else "No course"
-        type = properties["type"]["multi_select"][0]["name"] if properties["type"]["multi_select"] else "No type"
-        notion_id = page["id"]
-        progress = properties["Progress"]["status"]["name"] if properties["Progress"]["status"] else "No status"
-        todoist_task_id = properties["Todoist Task ID"]["rich_text"][0]["text"]["content"] \
-            if properties.get("Todoist Task ID") and properties["Todoist Task ID"]["rich_text"] else ""
-        completed_assignments.append({
-            "name": name,
-            "due_date": due_date,
-            "course": course,
-            "type": type,
-            "notion_id": notion_id,
-            "progress": progress,
-            "todoist_task_id": todoist_task_id
-        })
-else:
-    print("Failed to return completed data from Notion API: ", completed_response.text)
+completed_assignments = [parse_page(page) for page in fetch_all_pages(completed_filter, "completed")]
 
 
 def update_notion_page_properties(page_id, properties):
