@@ -14,7 +14,7 @@ def get_assignments():
 
 def mark_task_completed(task_id):
     try:
-        todoist.close_task(task_id)
+        todoist.complete_task(task_id)
         print(f"Task {task_id} marked as completed.")
     except Exception as e:
         print(f"Error marking task {task_id} as completed: {e}")
@@ -34,19 +34,20 @@ tasks = (todoist.get_tasks(project_id=TODOIST_PROJECT_ID))
 for task_list in tasks:
     for task in task_list:
 
-        # Try to parse NotionID from the description
         notion_id = ""
+        task_type = task.description or ""
         if task.description and "NotionID:" in task.description:
-            notion_id = task.description.split("NotionID:")[-1].strip()
+            parts = task.description.split("\nNotionID:")
+            task_type = parts[0]
+            notion_id = parts[1].strip() if len(parts) > 1 else ""
 
         assignment = {
             "name": task.content,
             "due_date": task.due.date if task.due else "No due date",
             "course": task.labels,
-            "type": task.description,
+            "type": task_type,
             "completed": task.is_completed,
             "todoist_task_id": task.id,
             "notion_id": notion_id
         }
         assignments.append(assignment)
-
