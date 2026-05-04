@@ -42,12 +42,13 @@ def create_todoist_task(assignment):
     except (ValueError, TypeError):
         due_date_obj = None
     course = [assignment["course"]]
+    description = f"{assignment['type']}\nNotionID:{assignment['notion_id']}" if assignment['type'] else f"NotionID:{assignment['notion_id']}"
     task = todoist.add_task(content=assignment['name'],
                             project_id=TODOIST_PROJECT_ID,
                             section_id=TODOIST_SECTION_ID,
                             due_date=due_date_obj,
                             labels=course,
-                            description=assignment['type'])
+                            description=description)
     # Save the Todoist task ID back to Notion so the two are linked
     update_notion_page_properties(assignment['notion_id'], {
         "Todoist Task ID": {
@@ -120,9 +121,10 @@ def todoist_to_notion():
     active_todoist_ids = {a['todoist_task_id'] for a in todoist_assignments}
 
     # Create Notion assignments for Todoist tasks not yet linked to Notion
+    all_notion_names = [a['name'] for a in get_all_assignments()]
     for assignment in todoist_assignments:
         if not assignment["notion_id"]:
-            if assignment['name'] not in get_notion_names():
+            if assignment['name'] not in all_notion_names:
                 notion_create_assignment(assignment)
 
     # Mark Notion assignments as completed when their Todoist task is no longer active
