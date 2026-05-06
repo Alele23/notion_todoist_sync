@@ -76,8 +76,14 @@ def notion_to_todoist():
 # Creates an assignment in Notion
 def notion_create_assignment(assignment):
     from notion import NOTION_DATABASE_ID, requests, headers
-    due_date_str = assignment['due_date']
-    due_date = due_date_str if isinstance(due_date_str, str) and len(due_date_str) == 10 else None
+    from datetime import date as date_type
+    raw = assignment['due_date']
+    if isinstance(raw, date_type):
+        due_date = raw.isoformat()
+    elif isinstance(raw, str) and len(raw) == 10:
+        due_date = raw
+    else:
+        due_date = None
     create_url = "https://api.notion.com/v1/pages"
 
     assignment_properties = {
@@ -92,8 +98,9 @@ def notion_create_assignment(assignment):
                     }
                 ]
             },
-            "due date": {
-                "date": {"start": due_date} if due_date else None
+            **( {"due date": {"date": {"start": due_date}}} if due_date else {} ),
+            "Todoist Task ID": {
+                "rich_text": [{"text": {"content": assignment['todoist_task_id']}}]
             },
             "course": {
                 "multi_select": [
