@@ -62,10 +62,11 @@ def notion_to_todoist():
     from todoist import mark_task_completed
     from notion import get_all_assignments
     all_assignments = get_all_assignments()
+    active_todoist_ids = {a['todoist_task_id'] for a in get_todoist_assignments()}
 
     for assignment in all_assignments:
         if assignment["todoist_task_id"]:
-            if assignment['progress'] == "Complete":
+            if assignment['progress'] == "Complete" and assignment['todoist_task_id'] in active_todoist_ids:
                 mark_task_completed(assignment['todoist_task_id'])
         else:
             if assignment['progress'] != "Complete":
