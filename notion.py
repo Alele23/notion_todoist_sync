@@ -102,5 +102,3 @@ def update_notion_page_properties(page_id, properties):
         print("Notion page updated successfully.")
     else:
         print("Failed to update Notion page: ", response.text)
-
-print(get_assignment_names())
