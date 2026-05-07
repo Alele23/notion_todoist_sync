@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TODOIST_CLIENT_SECRET = os.getenv("TODOIST_CLIENT_SECRET")
+NOTION_VERIFICATION_TOKEN = os.getenv("NOTION_VERIFICATION_TOKEN")
 
 app = FastAPI()
 
@@ -24,15 +25,17 @@ def verify_todoist_signature(body: bytes, signature: str) -> bool:
 async def notion_webhook(request: Request):
     payload = await request.json()
 
-    # Notion sends a verification challenge on first setup
-    if "challenge" in payload:
-        return {"challenge": payload["challenge"]}
+    # Notion sends verification token on first setup
+    if "verification_token" in payload:
+        if payload["verification_token"] != NOTION_VERIFICATION_TOKEN:
+            raise HTTPException(status_code=401, detail="Invalid verification token")
+        return {"status": "ok"}
 
     event_type = payload.get("type")
     print(f"Notion event received: {event_type}")
 
     # Any page change in the database — run notion → todoist sync
-    if event_type in ("page.updated", "page.created"):
+    if event_type in ("page.properties_updated", "page.created"):
         from sync import notion_to_todoist
         notion_to_todoist()
 
