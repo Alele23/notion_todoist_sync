@@ -3,23 +3,10 @@ import requests
 from notion_client import Client
 from dotenv import load_dotenv
 
-def get_assignment_names():
-    return [assignment["name"] for assignment in assignments]
-
-def get_assignments():
-    return assignments
-
-def get_completed_assignments():
-    return completed_assignments
-
-def get_all_assignments():
-    return assignments + completed_assignments
-
 load_dotenv()
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
 NOTION_DATABASE_ID = os.getenv("NOTION_DATABASE_ID")
 
-# Initialize Notion client
 notion = Client(auth=NOTION_API_KEY)
 url = f"https://api.notion.com/v1/databases/{NOTION_DATABASE_ID}/query"
 
@@ -32,21 +19,22 @@ headers = {
 status_filter = {
     "filter": {
         "or": [
-            {
-                "property": "Progress",
-                "status": {
-                    "equals": "Not started"
-                }
-            },
-            {
-                "property": "Progress",
-                "status": {
-                    "equals": "In progress"
-                }
-            }
+            {"property": "Progress", "status": {"equals": "Not started"}},
+            {"property": "Progress", "status": {"equals": "In progress"}}
         ]
     }
 }
+
+completed_filter = {
+    "filter": {
+        "property": "Progress",
+        "status": {"equals": "Complete"}
+    }
+}
+
+assignments = []
+completed_assignments = []
+
 
 def fetch_all_pages(filter_body, label=""):
     results = []
@@ -63,6 +51,7 @@ def fetch_all_pages(filter_body, label=""):
         body["start_cursor"] = data["next_cursor"]
     return results
 
+
 def parse_page(page):
     properties = page["properties"]
     return {
@@ -76,18 +65,24 @@ def parse_page(page):
             if properties.get("Todoist Task ID") and properties["Todoist Task ID"]["rich_text"] else ""
     }
 
-assignments = [parse_page(page) for page in fetch_all_pages(status_filter, "active")]
 
-completed_filter = {
-    "filter": {
-        "property": "Progress",
-        "status": {
-            "equals": "Complete"
-        }
-    }
-}
+def load():
+    global assignments, completed_assignments
+    assignments = [parse_page(page) for page in fetch_all_pages(status_filter, "active")]
+    completed_assignments = [parse_page(page) for page in fetch_all_pages(completed_filter, "completed")]
 
-completed_assignments = [parse_page(page) for page in fetch_all_pages(completed_filter, "completed")]
+
+def get_assignment_names():
+    return [assignment["name"] for assignment in assignments]
+
+def get_assignments():
+    return assignments
+
+def get_completed_assignments():
+    return completed_assignments
+
+def get_all_assignments():
+    return assignments + completed_assignments
 
 
 def update_notion_page_properties(page_id, properties):

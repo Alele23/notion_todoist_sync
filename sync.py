@@ -1,4 +1,3 @@
-import requests
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -7,6 +6,10 @@ from notion import update_notion_page_properties
 load_dotenv()
 
 def sync_assignments():
+    from notion import load as notion_load
+    from todoist import load as todoist_load
+    notion_load()
+    todoist_load()
     print("Starting synchronization...")
     notion_to_todoist()
     todoist_to_notion()
@@ -146,4 +149,5 @@ def todoist_to_notion():
             )
             print(f"Marked as completed in Notion: {assignment['name']}")
 
-sync_assignments()
+if __name__ == "__main__":
+    sync_assignments()

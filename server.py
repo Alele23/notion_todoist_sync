@@ -34,10 +34,9 @@ async def notion_webhook(request: Request):
     event_type = payload.get("type")
     print(f"Notion event received: {event_type}")
 
-    # Any page change in the database — run notion → todoist sync
     if event_type in ("page.properties_updated", "page.created"):
-        from sync import notion_to_todoist
-        notion_to_todoist()
+        from sync import sync_assignments
+        sync_assignments()
 
     return {"status": "ok"}
 
@@ -55,10 +54,9 @@ async def todoist_webhook(request: Request):
     event_type = payload.get("event_name")
     print(f"Todoist event received: {event_type}")
 
-    # Task completed or updated — run todoist → notion sync
     if event_type in ("item:completed", "item:updated", "item:added"):
-        from sync import todoist_to_notion
-        todoist_to_notion()
+        from sync import sync_assignments
+        sync_assignments()
 
     return {"status": "ok"}
 
