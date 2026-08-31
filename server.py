@@ -1,3 +1,4 @@
+import base64
 import hmac
 import hashlib
 import os
@@ -13,11 +14,13 @@ app = FastAPI()
 
 
 def verify_todoist_signature(body: bytes, signature: str) -> bool:
-    expected = hmac.new(
-        TODOIST_CLIENT_SECRET.encode(),
-        body,
-        hashlib.sha256
-    ).hexdigest()
+    expected = base64.b64encode(
+        hmac.new(
+            TODOIST_CLIENT_SECRET.encode(),
+            body,
+            hashlib.sha256
+        ).digest()
+    ).decode()
     return hmac.compare_digest(expected, signature)
 
 
