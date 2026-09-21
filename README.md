@@ -4,7 +4,7 @@
 ### Automatically syncs tasks between both platforms, including due dates, labels, and project sections.
 ### Runs as a local webhook server with real-time sync triggered by Notion and Todoist events.
 
-## ✨ Features
+## Features
 
     Bidirectional sync:
 
@@ -21,7 +21,7 @@
     Auto-start: launchd keeps the server and tunnel running automatically on login.
 
 
-## 📦 Requirements
+## Requirements
 
     Python 3.9+
 
@@ -33,7 +33,7 @@
 
     pip install requests python-dotenv notion-client todoist-api-python fastapi uvicorn
 
-## ⚙️ Setup
+## Setup
 ### 1. Clone the repo
 
 ```
@@ -69,7 +69,7 @@ Run a one-time sync:
 ```
 python sync.py
 ```
-## 🔄 Automation with Webhooks + Cloudflare Tunnel
+## Automation with Webhooks + Cloudflare Tunnel
 
 Sync is triggered in real time by webhooks from Notion and Todoist. A local FastAPI server receives the events and runs the sync logic. Cloudflare Tunnel exposes the server publicly without port forwarding.
 
@@ -108,7 +108,7 @@ launchctl load ~/Library/LaunchAgents/com.adamlele.cloudflared.plist
 tail -f server.log
 tail -f cloudflared.log
 ```
-## 📋 Project Structure
+## Project Structure
 ```
 notion_todoist_sync/
 ├── notion.py           # Fetch and parse assignments from Notion
