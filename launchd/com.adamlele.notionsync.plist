@@ -6,20 +6,22 @@
     <string>com.adamlele.notionsync</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/adamlele/notion_todoist_sync/venv/bin/uvicorn</string>
+        <string>/Users/adamlele/Personal Projects/notion_todoist_sync/venv/bin/python</string>
+        <string>-m</string>
+        <string>uvicorn</string>
         <string>server:app</string>
         <string>--port</string>
         <string>8000</string>
     </array>
     <key>WorkingDirectory</key>
-    <string>/Users/adamlele/notion_todoist_sync</string>
+    <string>/Users/adamlele/Personal Projects/notion_todoist_sync</string>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/Users/adamlele/notion_todoist_sync/server.log</string>
+    <string>/Users/adamlele/Personal Projects/notion_todoist_sync/server.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/adamlele/notion_todoist_sync/server.log</string>
+    <string>/Users/adamlele/Personal Projects/notion_todoist_sync/server.log</string>
 </dict>
 </plist>

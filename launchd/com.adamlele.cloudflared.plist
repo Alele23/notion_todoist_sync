@@ -16,8 +16,8 @@
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/Users/adamlele/notion_todoist_sync/cloudflared.log</string>
+    <string>/Users/adamlele/Personal Projects/notion_todoist_sync/cloudflared.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/adamlele/notion_todoist_sync/cloudflared.log</string>
+    <string>/Users/adamlele/Personal Projects/notion_todoist_sync/cloudflared.log</string>
 </dict>
 </plist>
