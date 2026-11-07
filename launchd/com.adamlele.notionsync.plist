@@ -7,6 +7,7 @@
     <key>ProgramArguments</key>
     <array>
         <string>/Users/adamlele/Personal Projects/notion_todoist_sync/venv/bin/python</string>
+        <string>-u</string>
         <string>-m</string>
         <string>uvicorn</string>
         <string>server:app</string>
