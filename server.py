@@ -2,7 +2,8 @@ import base64
 import hmac
 import hashlib
 import os
-from fastapi import FastAPI, Request, HTTPException
+import threading
+from fastapi import BackgroundTasks, FastAPI, Request, HTTPException
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,6 +12,27 @@ TODOIST_CLIENT_SECRET = os.getenv("TODOIST_CLIENT_SECRET")
 NOTION_VERIFICATION_TOKEN = os.getenv("NOTION_VERIFICATION_TOKEN")
 
 app = FastAPI()
+
+_sync_lock = threading.Lock()
+_sync_pending = threading.Event()
+
+
+def run_sync():
+    # Notion pauses webhooks that respond slowly, so sync runs after the response.
+    # Events arriving mid-sync collapse into a single follow-up run.
+    from sync import sync_assignments
+    _sync_pending.set()
+    # Re-check after releasing: an event that lost the lock race must not be dropped.
+    while _sync_pending.is_set() and _sync_lock.acquire(blocking=False):
+        try:
+            while _sync_pending.is_set():
+                _sync_pending.clear()
+                try:
+                    sync_assignments()
+                except Exception as e:
+                    print(f"Sync failed: {e!r}")
+        finally:
+            _sync_lock.release()
 
 
 def verify_todoist_signature(body: bytes, signature: str) -> bool:
@@ -25,7 +47,7 @@ def verify_todoist_signature(body: bytes, signature: str) -> bool:
 
 
 @app.post("/webhook/notion")
-async def notion_webhook(request: Request):
+async def notion_webhook(request: Request, background_tasks: BackgroundTasks):
     payload = await request.json()
 
     # Notion sends verification token on first setup
@@ -38,14 +60,13 @@ async def notion_webhook(request: Request):
     print(f"Notion event received: {event_type}")
 
     if event_type in ("page.properties_updated", "page.created"):
-        from sync import sync_assignments
-        sync_assignments()
+        background_tasks.add_task(run_sync)
 
     return {"status": "ok"}
 
 
 @app.post("/webhook/todoist")
-async def todoist_webhook(request: Request):
+async def todoist_webhook(request: Request, background_tasks: BackgroundTasks):
     body = await request.body()
 
     # Verify the request came from Todoist
@@ -58,8 +79,7 @@ async def todoist_webhook(request: Request):
     print(f"Todoist event received: {event_type}")
 
     if event_type in ("item:completed", "item:updated", "item:added"):
-        from sync import sync_assignments
-        sync_assignments()
+        background_tasks.add_task(run_sync)
 
     return {"status": "ok"}
 
